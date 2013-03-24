@@ -18,4 +18,8 @@ cabal-version:       >=1.8
 library
   -- exposed-modules:     
   -- other-modules:       
-  build-depends:       base ==4.6.*
+  build-depends:     base >= 4 && < 5,
+                     bytestring
+  exposed-modules:   Language.Aspell, Language.Aspell.Options
+  extensions:        CPP, EmptyDataDecls, ForeignFunctionInterface, OverloadedStrings, ScopedTypeVariables
+  extra-libraries:   aspell
