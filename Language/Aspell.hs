@@ -1,5 +1,6 @@
 module Language.Aspell (
     -- * Constructors
+    SpellChecker,
     spellChecker,
     spellCheckerWithOptions,
     spellCheckerWithDictionary,
