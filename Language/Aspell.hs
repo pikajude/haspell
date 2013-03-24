@@ -27,10 +27,10 @@ newConfig = do
     newForeignPtr delete_aspell_config cf
     
 setOpts :: [ACOption] -> AspellConfig -> IO AspellConfig
-setOpts ((MasterDict dict):opts) pt = setOpt "master" dict pt >>= setOpts opts
-setOpts ((WordListDir dir):opts) pt = setOpt "dict-dir" dir pt >>= setOpts opts
-setOpts ((Lang lang):opts) pt = setOpt "lang" lang pt >>= setOpts opts
-setOpts ((Size size):opts) pt = setOpt "size" newSize pt >>= setOpts opts
+setOpts (MasterDict dict:opts) pt = setOpt "master" dict pt >>= setOpts opts
+setOpts (WordListDir dir:opts) pt = setOpt "dict-dir" dir pt >>= setOpts opts
+setOpts (Lang lang:opts) pt = setOpt "lang" lang pt >>= setOpts opts
+setOpts (Size size:opts) pt = setOpt "size" newSize pt >>= setOpts opts
     where
         newSize = case size of
                        Tiny -> "+10"
@@ -42,28 +42,28 @@ setOpts ((Size size):opts) pt = setOpt "size" newSize pt >>= setOpts opts
                        Large -> "+70"
                        Huge -> "+80"
                        Insane -> "+90"
-setOpts ((PersonalWordList wl):opts) pt = setOpt "personal" wl pt >>= setOpts opts
-setOpts ((ReplacementsList rl):opts) pt = setOpt "repl" rl pt >>= setOpts opts
-setOpts ((Encoding encoding):opts) pt = setOpt "encoding" enc pt >>= setOpts opts
+setOpts (PersonalWordList wl:opts) pt = setOpt "personal" wl pt >>= setOpts opts
+setOpts (ReplacementsList rl:opts) pt = setOpt "repl" rl pt >>= setOpts opts
+setOpts (Encoding encoding:opts) pt = setOpt "encoding" enc pt >>= setOpts opts
     where
         enc = case encoding of
                    UTF8 -> "utf-8"
                    Latin1 -> "iso-8859-1"
-setOpts ((Normalize n):opts) pt = setOptBool "normalize" n pt >>= setOpts opts
-setOpts ((NormalizeStrict n):opts) pt = setOptBool "norm-strict" n pt >>= setOpts opts
-setOpts ((NormalizeForm form):opts) pt = setOpt "norm-form" nform pt >>= setOpts opts
+setOpts (Normalize n:opts) pt = setOptBool "normalize" n pt >>= setOpts opts
+setOpts (NormalizeStrict n:opts) pt = setOptBool "norm-strict" n pt >>= setOpts opts
+setOpts (NormalizeForm form:opts) pt = setOpt "norm-form" nform pt >>= setOpts opts
     where
         nform = case form of
                      None -> "none"
                      NFD -> "nfd"
                      NFC -> "nfc"
                      Composed -> "comp"
-setOpts ((NormalizeRequired b):opts) pt = setOptBool "norm-required" b pt >>= setOpts opts
-setOpts ((Ignore i):opts) pt = setOptInteger "ignore" i pt >>= setOpts opts
-setOpts ((IgnoreReplace b):opts) pt = setOptBool "ignore-repl" b pt >>= setOpts opts
-setOpts ((SaveReplace b):opts) pt = setOptBool "save-repl" b pt >>= setOpts opts
-setOpts ((KeyboardDef s):opts) pt = setOpt "keyboard" s pt >>= setOpts opts
-setOpts ((SuggestMode sm):opts) pt = setOpt "sug-mode" mode pt >>= setOpts opts
+setOpts (NormalizeRequired b:opts) pt = setOptBool "norm-required" b pt >>= setOpts opts
+setOpts (Ignore i:opts) pt = setOptInteger "ignore" i pt >>= setOpts opts
+setOpts (IgnoreReplace b:opts) pt = setOptBool "ignore-repl" b pt >>= setOpts opts
+setOpts (SaveReplace b:opts) pt = setOptBool "save-repl" b pt >>= setOpts opts
+setOpts (KeyboardDef s:opts) pt = setOpt "keyboard" s pt >>= setOpts opts
+setOpts (SuggestMode sm:opts) pt = setOpt "sug-mode" mode pt >>= setOpts opts
     where
         mode = case sm of
                     Ultra -> "ultra"
@@ -71,31 +71,31 @@ setOpts ((SuggestMode sm):opts) pt = setOpt "sug-mode" mode pt >>= setOpts opts
                     Normal -> "normal"
                     Slow -> "slow"
                     BadSpellers -> "bad-spellers"
-setOpts ((IgnoreCase b):opts) pt = setOptBool "ignore-case" b pt >>= setOpts opts
-setOpts ((IgnoreAccents b):opts) pt = setOptBool "ignore-accents" b pt >>= setOpts opts
-setOpts ((FilterMode s):opts) pt = setOpt "mode" s pt >>= setOpts opts
-setOpts ((EmailMargin n):opts) pt = setOptInteger "email-margin" n pt >>= setOpts opts
-setOpts ((TeXCheckComments b):opts) pt = setOptBool "tex-check-comments" b pt >>= setOpts opts
-setOpts ((ContextVisibleFirst b):opts) pt = setOptBool "context-visible-first" b pt >>= setOpts opts
-setOpts ((RunTogether b):opts) pt = setOptBool "run-together" b pt >>= setOpts opts
-setOpts ((RunTogetherLimit n):opts) pt = setOptInteger "run-together-limit" n pt >>= setOpts opts
-setOpts ((RunTogetherMin n):opts) pt = setOptInteger "run-together-min" n pt >>= setOpts opts
-setOpts ((MainConfig s):opts) pt = setOpt "conf" s pt >>= setOpts opts
-setOpts ((MainConfigDir s):opts) pt = setOpt "conf-dir" s pt >>= setOpts opts
-setOpts ((DataDir s):opts) pt = setOpt "data-dir" s pt >>= setOpts opts
-setOpts ((LocalDataDir s):opts) pt = setOpt "local-data-dir" s pt >>= setOpts opts
-setOpts ((HomeDir s):opts) pt = setOpt "home-dir" s pt >>= setOpts opts
-setOpts ((PersonalConfig s):opts) pt = setOpt "per-conf" s pt >>= setOpts opts
-setOpts ((Layout s):opts) pt = setOpt "keyboard" s pt >>= setOpts opts
-setOpts ((Prefix s):opts) pt = setOpt "prefix" s pt >>= setOpts opts
-setOpts ((SetPrefix b):opts) pt = setOptBool "set-prefix" b pt >>= setOpts opts
-setOpts ((MakeBackup b):opts) pt = setOptBool "backup" b pt >>= setOpts opts
-setOpts ((Time b):opts) pt = setOptBool "time" b pt >>= setOpts opts
-setOpts ((ByteOffsets b):opts) pt = setOptBool "byte-offsets" b pt >>= setOpts opts
-setOpts ((Reverse b):opts) pt = setOptBool "reverse" b pt >>= setOpts opts
-setOpts ((KeyMapping s):opts) pt = setOpt "keymapping" s pt >>= setOpts opts
-setOpts ((Guess b):opts) pt = setOptBool "guess" b pt >>= setOpts opts
-setOpts ((Suggest b):opts) pt = setOptBool "suggest" b pt >>= setOpts opts
+setOpts (IgnoreCase b:opts) pt = setOptBool "ignore-case" b pt >>= setOpts opts
+setOpts (IgnoreAccents b:opts) pt = setOptBool "ignore-accents" b pt >>= setOpts opts
+setOpts (FilterMode s:opts) pt = setOpt "mode" s pt >>= setOpts opts
+setOpts (EmailMargin n:opts) pt = setOptInteger "email-margin" n pt >>= setOpts opts
+setOpts (TeXCheckComments b:opts) pt = setOptBool "tex-check-comments" b pt >>= setOpts opts
+setOpts (ContextVisibleFirst b:opts) pt = setOptBool "context-visible-first" b pt >>= setOpts opts
+setOpts (RunTogether b:opts) pt = setOptBool "run-together" b pt >>= setOpts opts
+setOpts (RunTogetherLimit n:opts) pt = setOptInteger "run-together-limit" n pt >>= setOpts opts
+setOpts (RunTogetherMin n:opts) pt = setOptInteger "run-together-min" n pt >>= setOpts opts
+setOpts (MainConfig s:opts) pt = setOpt "conf" s pt >>= setOpts opts
+setOpts (MainConfigDir s:opts) pt = setOpt "conf-dir" s pt >>= setOpts opts
+setOpts (DataDir s:opts) pt = setOpt "data-dir" s pt >>= setOpts opts
+setOpts (LocalDataDir s:opts) pt = setOpt "local-data-dir" s pt >>= setOpts opts
+setOpts (HomeDir s:opts) pt = setOpt "home-dir" s pt >>= setOpts opts
+setOpts (PersonalConfig s:opts) pt = setOpt "per-conf" s pt >>= setOpts opts
+setOpts (Layout s:opts) pt = setOpt "keyboard" s pt >>= setOpts opts
+setOpts (Prefix s:opts) pt = setOpt "prefix" s pt >>= setOpts opts
+setOpts (SetPrefix b:opts) pt = setOptBool "set-prefix" b pt >>= setOpts opts
+setOpts (MakeBackup b:opts) pt = setOptBool "backup" b pt >>= setOpts opts
+setOpts (Time b:opts) pt = setOptBool "time" b pt >>= setOpts opts
+setOpts (ByteOffsets b:opts) pt = setOptBool "byte-offsets" b pt >>= setOpts opts
+setOpts (Reverse b:opts) pt = setOptBool "reverse" b pt >>= setOpts opts
+setOpts (KeyMapping s:opts) pt = setOpt "keymapping" s pt >>= setOpts opts
+setOpts (Guess b:opts) pt = setOptBool "guess" b pt >>= setOpts opts
+setOpts (Suggest b:opts) pt = setOptBool "suggest" b pt >>= setOpts opts
 setOpts [] pt = return pt
 
 setOpt :: ByteString
@@ -103,17 +103,16 @@ setOpt :: ByteString
        -> AspellConfig
        -> IO AspellConfig
 setOpt key value pt = do
-    withForeignPtr pt $ \ac -> do
-        useAsCString key $ \k -> do
-            useAsCString value $ \v -> do
-                aspell_config_replace ac k v
+    withForeignPtr pt $ \ac ->
+        useAsCString key $ \k ->
+            useAsCString value $ aspell_config_replace ac k
     return pt
 
 setOptBool :: ByteString -> Bool -> AspellConfig -> IO AspellConfig
-setOptBool k v p = setOpt k (if v then "true" else "false") p
+setOptBool k v = setOpt k (if v then "true" else "false")
 
 setOptInteger :: ByteString -> Integer -> AspellConfig -> IO AspellConfig
-setOptInteger k v p = setOpt k (pack $ show v) p
+setOptInteger k v = setOpt k (pack $ show v)
 
 spellChecker :: IO (Either ByteString SpellChecker)
 spellChecker = spellCheckerWithOptions []
@@ -134,14 +133,14 @@ spellCheckerWithOptions opts = do
            return $ Right for
 
 check :: SpellChecker -> ByteString -> Bool
-check checker word = unsafePerformIO $ do
-    withForeignPtr checker $ \ck -> do
+check checker word = unsafePerformIO $
+    withForeignPtr checker $ \ck ->
         useAsCString word $ \w -> do
             res <- aspell_speller_check ck w $ negate 1
             return $ res == 1
 
 suggest :: SpellChecker -> ByteString -> IO [ByteString]
-suggest checker word = withForeignPtr checker $ \ck -> do
+suggest checker word = withForeignPtr checker $ \ck ->
     useAsCString word $ \w -> do
         wlist <- aspell_speller_suggest ck w (negate 1)
         elems <- aspell_word_list_elements wlist
