@@ -1,7 +1,11 @@
 module Language.Aspell (
-    check,
+    -- * Constructors
     spellChecker,
     spellCheckerWithOptions,
+    spellCheckerWithDictionary,
+
+    -- * Using the spell checker
+    check,
     suggest
 ) where
 
@@ -27,7 +31,7 @@ newConfig = do
     newForeignPtr delete_aspell_config cf
     
 setOpts :: [ACOption] -> AspellConfig -> IO AspellConfig
-setOpts (MasterDict dict:opts) pt = setOpt "master" dict pt >>= setOpts opts
+setOpts (Dictionary dict:opts) pt = setOpt "master" dict pt >>= setOpts opts
 setOpts (WordListDir dir:opts) pt = setOpt "dict-dir" dir pt >>= setOpts opts
 setOpts (Lang lang:opts) pt = setOpt "lang" lang pt >>= setOpts opts
 setOpts (Size size:opts) pt = setOpt "size" newSize pt >>= setOpts opts
@@ -89,13 +93,6 @@ setOpts (PersonalConfig s:opts) pt = setOpt "per-conf" s pt >>= setOpts opts
 setOpts (Layout s:opts) pt = setOpt "keyboard" s pt >>= setOpts opts
 setOpts (Prefix s:opts) pt = setOpt "prefix" s pt >>= setOpts opts
 setOpts (SetPrefix b:opts) pt = setOptBool "set-prefix" b pt >>= setOpts opts
-setOpts (MakeBackup b:opts) pt = setOptBool "backup" b pt >>= setOpts opts
-setOpts (Time b:opts) pt = setOptBool "time" b pt >>= setOpts opts
-setOpts (ByteOffsets b:opts) pt = setOptBool "byte-offsets" b pt >>= setOpts opts
-setOpts (Reverse b:opts) pt = setOptBool "reverse" b pt >>= setOpts opts
-setOpts (KeyMapping s:opts) pt = setOpt "keymapping" s pt >>= setOpts opts
-setOpts (Guess b:opts) pt = setOptBool "guess" b pt >>= setOpts opts
-setOpts (Suggest b:opts) pt = setOptBool "suggest" b pt >>= setOpts opts
 setOpts [] pt = return pt
 
 setOpt :: ByteString
@@ -114,9 +111,16 @@ setOptBool k v = setOpt k (if v then "true" else "false")
 setOptInteger :: ByteString -> Integer -> AspellConfig -> IO AspellConfig
 setOptInteger k v = setOpt k (pack $ show v)
 
+-- | Creates a spell checker with default options.
+--
+-- @
+-- 'spellChecker' = 'spellCheckerWithOptions' []
+-- @
+-- 
 spellChecker :: IO (Either ByteString SpellChecker)
 spellChecker = spellCheckerWithOptions []
 
+-- | Creates a spell checker with a custom set of options.
 spellCheckerWithOptions :: [ACOption] -> IO (Either ByteString SpellChecker)
 spellCheckerWithOptions opts = do
     cf <- newConfig
@@ -132,6 +136,17 @@ spellCheckerWithOptions opts = do
            for <- newForeignPtr delete_aspell_speller speller
            return $ Right for
 
+-- | Convenience function for specifying a dictionary.
+-- 
+-- You can determine which dictionaries are available to you with @aspell dump dicts@.
+--
+-- @
+-- 'spellCheckerWithDictionary' dict = 'spellCheckerWithOptions' ['Dictionary' dict]
+-- @
+spellCheckerWithDictionary :: ByteString -> IO (Either ByteString SpellChecker)
+spellCheckerWithDictionary b = spellCheckerWithOptions [Dictionary b]
+
+-- | Checks if a word has been spelled correctly.
 check :: SpellChecker -> ByteString -> Bool
 check checker word = unsafePerformIO $
     withForeignPtr checker $ \ck ->
@@ -139,6 +154,9 @@ check checker word = unsafePerformIO $
             res <- aspell_speller_check ck w $ negate 1
             return $ res == 1
 
+-- | Lists suggestions for misspelled words.
+--
+-- If the input is not misspelled according to the dictionary, returns @[]@.
 suggest :: SpellChecker -> ByteString -> IO [ByteString]
 suggest checker word = withForeignPtr checker $ \ck ->
     useAsCString word $ \w -> do
