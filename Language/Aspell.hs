@@ -11,7 +11,10 @@ module Language.Aspell (
 ) where
 
 import Data.ByteString.Char8
-import Foreign hiding (unsafePerformIO)
+import Foreign
+#if !MIN_VERSION_base(4,7,0)
+     hiding (unsafePerformIO)
+#endif
 import Foreign.C.String
 import Foreign.C.Types
 import Language.Aspell.Options
@@ -30,7 +33,7 @@ newConfig :: IO AspellConfig
 newConfig = do
     cf <- new_aspell_config
     newForeignPtr delete_aspell_config cf
-    
+
 setOpts :: [ACOption] -> AspellConfig -> IO AspellConfig
 setOpts (Dictionary dict:opts) pt = setOpt "master" dict pt >>= setOpts opts
 setOpts (WordListDir dir:opts) pt = setOpt "dict-dir" dir pt >>= setOpts opts
@@ -117,7 +120,7 @@ setOptInteger k v = setOpt k (pack $ show v)
 -- @
 -- 'spellChecker' = 'spellCheckerWithOptions' []
 -- @
--- 
+--
 spellChecker :: IO (Either ByteString SpellChecker)
 spellChecker = spellCheckerWithOptions []
 
@@ -138,7 +141,7 @@ spellCheckerWithOptions opts = do
            return $ Right for
 
 -- | Convenience function for specifying a dictionary.
--- 
+--
 -- You can determine which dictionaries are available to you with @aspell dump dicts@.
 --
 -- @
@@ -231,4 +234,3 @@ foreign import ccall unsafe "aspell.h aspell_word_list_elements"
 foreign import ccall unsafe "aspell.h aspell_string_enumeration_next"
     aspell_string_enumeration_next :: CStringEnumeration
                                    -> IO CString
-    
